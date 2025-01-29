@@ -1,0 +1,132 @@
+#include "Arduino.h"
+#include "jk_bms.h"
+// #include "menu.h"
+#include "lcd.h"
+
+static uint8_t receivedBuffer[RECEVIED_BUFFER_LENGTH];
+
+static unsigned long previousMillis = 0;
+
+byte menuLevel = 0;
+
+void processBMSdata(uint8_t *data);
+
+void setup()  {
+  Serial_begin(115200);
+  configureLcdPins();
+  lcdInitialization();
+  pinMode(PB5,OUTPUT);
+} 
+
+void loop()  {
+  
+  // checkButton();
+  // receivedBuffer[0] = 0x19;
+  // receivedBuffer[1] = 0xfb;
+  // receivedBuffer[2] = 0x01;
+  // receivedBuffer[3] = 0x10;
+  // receivedBuffer[4] = 0x32;
+  
+  if (menuLevel == 0)
+  {
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= JK_BMS_READ_INTERVAL)
+    {
+      requestToJkmBms();
+      if (!fillBatteryBuffer(receivedBuffer))
+      {
+        //Temporary
+        processBMSdata(receivedBuffer);
+        //No Menu and no BMS is connected.
+      }
+      else
+      {
+        processBMSdata(receivedBuffer);
+        //Display Main Data On the Display.
+      }
+      previousMillis = currentMillis;
+    
+      //lcd_cmd(0x01);
+    }
+  }
+
+  digitalWrite(PB5,HIGH);
+  delay(50);
+  digitalWrite(PB5,LOW);
+  delay(50); 
+  
+}
+
+void processBMSdata(uint8_t *data)
+{    
+  uint8_t    lcdWorkingBuffer[16];
+  uint8_t    RemainingCapacity = 0;
+  uint16_t   current = 0;
+  uint16_t   voltage = 0;
+  uint16_t   Power = 0;
+  uint8_t    DistanceRemaining;
+
+
+  lcd_cmd(0x02);
+  voltage = (uint16_t)data[0] << 8 | data[1];             //volatge two combine bytes
+  current = (uint16_t)data[2] << 8 | data[3];            //current two combine bytes 
+  RemainingCapacity = data[4];                          //Capacity one byte
+  Power = (uint16_t)data[5] << 8 | data[6];            //current two combine bytes 
+
+  //Power = (uint16_t)voltage /100 * current /100;      //calculation for power
+  DistanceRemaining = RemainingCapacity * 0.6;       //calculation for remaining distance
+
+  lcd_set_cursor(0,0);
+  intToString(RemainingCapacity, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));            //print Capacity
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string("%",1);
+
+  lcd_set_cursor(0,5);
+  intToString(DistanceRemaining, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));         //print DistanceRemaining
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string("KM ",3);
+
+  lcd_set_cursor(0,11);
+  intToString(current/100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));               //print Current
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string(".",1);
+  intToString(current%100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));     
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string("A ",2);
+
+  lcd_set_cursor(1,0);
+  intToString(voltage/100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));              //print Voltage
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string(".",1);
+  intToString(voltage%100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string("V",1);
+
+  lcd_set_cursor(1,10);
+  intToString(Power/100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));            //print power upto 2 dec place
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string(".",1);
+  intToString(Power%100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));
+  lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  lcd_string("W ",2);
+
+  // if(Power !=0 ){
+  // intToString(Power/100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));            //print power upto 2 dec place
+  // lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  // //lcd_string(".",1);
+  // intToString(Power%100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));
+  // lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  // lcd_string(".",1);
+  // intToString(Power%10, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));
+  // lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  // lcd_string("W ",2);
+  // }
+  // else {
+  // intToString(Power%100, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));          //print power upto 1 dec place
+  // lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  // lcd_string(".",1);
+  // intToString(Power%10, lcdWorkingBuffer, sizeof(lcdWorkingBuffer));
+  // lcd_string(lcdWorkingBuffer, strlen(lcdWorkingBuffer));
+  // lcd_string("W  ",3);
+  // }
+ }

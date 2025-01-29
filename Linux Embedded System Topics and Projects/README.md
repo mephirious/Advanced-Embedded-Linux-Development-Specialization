@@ -92,14 +92,3 @@ By following these methodologies, the project successfully achieved its objectiv
 Components links: - MCU: https://www.google.com/url?sa=i&url=https%3A%2F%2Fdigilog.pk%2Fproducts%2Fstm8s003f3p6-stm8-minimum-development-board-in-pakistan&psig=AOvVaw1UMQfyMvtkpkrmEw8U2NhT&ust=1714027727791000&source=images&cd=vfe&opi=89978449&ved=0CBQQjhxqFwoTCMC-i4Gh2oUDFQAAAAAdAAAAABAE
 
 buck module: https://www.google.com/url?sa=i&url=https%3A%2F%2Felectronicshub.pk%2Fproduct%2Flm2596-dc-dc-buck-converter-step-down-module-power-supply%2F&psig=AOvVaw03e9Haw106O9eyHN5gmgaA&ust=1714027781942000&source=images&cd=vfe&opi=89978449&ved=0CBQQjhxqFwoTCIC41Jqh2oUDFQAAAAAdAAAAABAE
-
-Pages 1
-Find a page…
-Home
-Clone this wiki locally
-https://github.com/MuhammadAli1132001/final-project-Linux-Embedded-System-Topics-and-Projects.wiki.git
-Footer
-© 2025 GitHub, Inc.
-Footer navigation
-Terms
-Privac
